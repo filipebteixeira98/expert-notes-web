@@ -17,8 +17,13 @@ export function App() {
       <div className="h-px bg-slate-700" />
       <div className="grid grid-cols-3 gap-6 auto-rows-[250px]">
         <NewNoteCard />
-        <NoteCard />
-        <NoteCard />
+        <NoteCard
+          note={{
+            date: new Date(),
+            content:
+              'Lorem ipsum dolor sit amet consectetur adipisicing elit. Facere maiores nihil dolorem, consequatur quaerat exercitationem fugit soluta cumque enim tempore voluptatem possimus iure dignissimos iusto deserunt. Aliquid qui corrupti ipsa!',
+          }}
+        />
       </div>
     </div>
   )
