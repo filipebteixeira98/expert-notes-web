@@ -9,6 +9,7 @@ interface NewNoteCardProps {
 
 export function NewNoteCard({ onNoteCreated }: NewNoteCardProps) {
   const [shouldShowOnboarding, setShouldShowOnboarding] = useState(true)
+
   const [content, setContent] = useState('')
 
   function handleStartEditor() {
