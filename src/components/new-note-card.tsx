@@ -1,6 +1,6 @@
-import { ChangeEvent, FormEvent, useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
+import { type ChangeEvent, type FormEvent, useState } from 'react'
 import { toast } from 'sonner'
 
 interface NewNoteCardProps {
@@ -49,8 +49,22 @@ export function NewNoteCard({ onNoteCreated }: NewNoteCardProps) {
       'SpeechRecognition' in window || 'webkitSpeechRecognition' in window
 
     if (!isSpeechRecognitionAPIAvailable) {
-      alert(
-        'Unfortunately your browser does not have support to recording API!'
+      toast.error('Your browser does not support speech recognition.')
+
+      return
+    }
+
+    if (!window.isSecureContext) {
+      toast.error(
+        'Speech recognition requires a secure context (HTTPS or localhost).'
+      )
+
+      return
+    }
+
+    if (!navigator.onLine) {
+      toast.error(
+        'Speech recognition is offline. Check your internet connection and try again.'
       )
 
       return
@@ -80,9 +94,41 @@ export function NewNoteCard({ onNoteCreated }: NewNoteCardProps) {
 
     speechRecognition.onerror = (event) => {
       console.error(event)
+
+      handleStopRecording()
+
+      if (event.error === 'network') {
+        toast.error(
+          'Speech recognition service is unavailable. This API depends on browser network access and usually only works in Chrome-based browsers over HTTPS or localhost.'
+        )
+
+        return
+      }
+
+      if (event.error === 'not-allowed') {
+        toast.error(
+          'Microphone access was blocked. Allow microphone permission and try again.'
+        )
+
+        return
+      }
+
+      toast.error(`Speech recognition failed: ${event.error}.`)
     }
 
-    speechRecognition.start()
+    speechRecognition.onend = () => {
+      setIsRecording(false)
+    }
+
+    try {
+      speechRecognition.start()
+    } catch (error) {
+      console.error(error)
+
+      handleStopRecording()
+
+      toast.error('Could not start speech recognition. Try again in a moment.')
+    }
   }
 
   function handleStopRecording() {
